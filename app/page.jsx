@@ -1,11 +1,14 @@
 "use client";
-import { useRef, useState } from "react";
-import Image from "next/image";
-import { Canvas, useFrame } from "@react-three/fiber";
+import { Canvas} from "@react-three/fiber";
 import { Model } from "../Components/Hatchet-logo";
-import { OrbitControls, Environment, Float } from "@react-three/drei";
-import { BlendFunction } from "postprocessing";
-import { EffectComposer, Noise, Scanline } from "@react-three/postprocessing";
+import { Environment, Float } from "@react-three/drei";
+import { KernelSize, Resolution } from 'postprocessing'
+import {
+	Bloom,
+	EffectComposer,
+	Noise,
+	Scanline,
+} from "@react-three/postprocessing";
 
 export default function Home() {
 	return (
@@ -19,6 +22,18 @@ export default function Home() {
 				>
 					<Model />
 				</Float>
+				<Environment preset="lobby" />
+				<EffectComposer>
+					<Bloom
+						intensity={7.0} // The bloom intensity.
+						kernelSize={KernelSize.LARGE} // blur kernel size
+						luminanceThreshold={0.1} // luminance threshold. Raise this value to mask out darker elements in the scene.
+						luminanceSmoothing={0.025} // smoothness of the luminance threshold. Range is [0, 1]
+						mipmapBlur={true} // Enables or disables mipmap blur.
+						resolutionX={Resolution.AUTO_SIZE} // The horizontal resolution.
+						resolutionY={Resolution.AUTO_SIZE} // The vertical resolution.
+					/>
+				</EffectComposer>
 			</Canvas>
 		</main>
 	);
