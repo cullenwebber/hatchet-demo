@@ -5,23 +5,23 @@ import * as THREE from "three";
 import gsap from "gsap";
 
 export function Model(props) {
-  const pointsRef1 = useRef();
-  const pointsRef2 = useRef();
-  const waveFactor = useRef(0);
-  const [isHovered, setIsHovered] = useState(false);
-  const hoverValue = useRef(0.05);
+	const pointsRef1 = useRef();
+	const pointsRef2 = useRef();
+	const waveFactor = useRef(0);
+	const [isHovered, setIsHovered] = useState(false);
+	const hoverValue = useRef(0.05);
 
-  const pointsMaterial = useMemo(
-    () =>
-      new THREE.ShaderMaterial({
-        uniforms: {
-          color: { value: new THREE.Color("#cd001a") },
-          size: { value: 0.15 },
-          time: { value: 0 },
-          hover: { value: 0 },
-          emissive: { value: new THREE.Color("#cd001a") },
-        },
-        vertexShader: `
+	const pointsMaterial = useMemo(
+		() =>
+			new THREE.ShaderMaterial({
+				uniforms: {
+					color: { value: new THREE.Color("#cd001a") },
+					size: { value: 0.15 },
+					time: { value: 0 },
+					hover: { value: 0 },
+					emissive: { value: new THREE.Color("#cd001a") },
+				},
+				vertexShader: `
           uniform float time;
           uniform float hover;
           varying vec3 vPosition;
@@ -114,7 +114,7 @@ export function Model(props) {
             gl_PointSize = 1.25;
           }
         `,
-        fragmentShader: `
+				fragmentShader: `
           uniform vec3 color;
           uniform vec3 emissive;
           void main() {
@@ -122,57 +122,56 @@ export function Model(props) {
             gl_FragColor = vec4(finalColor, 2.0);
           }
         `,
-      }),
-    []
-  );
+			}),
+		[]
+	);
 
-  const { nodes } = useGLTF("/hatchet-logo.glb");
+	const { nodes } = useGLTF("/hatchet-logo.glb");
 
-  useEffect(() => {
-    const hoverTarget = { value: hoverValue.current };
-    gsap.to(hoverTarget, {
-      value: isHovered ? 0.4 : 0.05,
-      duration: 0.4,
-      ease: "power2",
-      onUpdate: () => {
-        hoverValue.current = hoverTarget.value;
-      },
-    });
-  }, [isHovered]);
+	useEffect(() => {
+		const hoverTarget = { value: hoverValue.current };
+		gsap.to(hoverTarget, {
+			value: isHovered ? 0.4 : 0.05,
+			duration: 0.4,
+			ease: "power2",
+			onUpdate: () => {
+				hoverValue.current = hoverTarget.value;
+			},
+		});
+	}, [isHovered]);
 
-  useFrame((state, delta) => {
-    waveFactor.current += delta;
-    if (pointsRef1.current && pointsRef2.current) {
-      pointsRef1.current.material.uniforms.time.value = waveFactor.current;
-      pointsRef1.current.material.uniforms.hover.value = hoverValue.current;
-      
-      pointsRef2.current.material.uniforms.time.value = waveFactor.current;
-      pointsRef2.current.material.uniforms.hover.value = hoverValue.current;
-      
-    }
-  });
+	useFrame((state, delta) => {
+		waveFactor.current += delta;
+		if (pointsRef1.current && pointsRef2.current) {
+			pointsRef1.current.material.uniforms.time.value = waveFactor.current;
+			pointsRef1.current.material.uniforms.hover.value = hoverValue.current;
 
-  return (
-    <group
-      {...props}
-      dispose={null}
-      onPointerOver={() => setIsHovered(true)}
-      onPointerOut={() => setIsHovered(false)}
-    >
-      <points
-        ref={pointsRef1}
-        geometry={nodes.Curve.geometry}
-        material={pointsMaterial}
-        scale={0.6}
-      />
-      <points
-        ref={pointsRef2}
-        geometry={nodes.Curve001.geometry}
-        material={pointsMaterial}
-        scale={0.6}
-      />
-    </group>
-  );
+			pointsRef2.current.material.uniforms.time.value = waveFactor.current;
+			pointsRef2.current.material.uniforms.hover.value = hoverValue.current;
+		}
+	});
+
+	return (
+		<group
+			{...props}
+			dispose={null}
+			onPointerOver={() => setIsHovered(true)}
+			onPointerOut={() => setIsHovered(false)}
+		>
+			<points
+				ref={pointsRef1}
+				geometry={nodes.Curve.geometry}
+				material={pointsMaterial}
+				scale={0.6}
+			/>
+			<points
+				ref={pointsRef2}
+				geometry={nodes.Curve001.geometry}
+				material={pointsMaterial}
+				scale={0.6}
+			/>
+		</group>
+	);
 }
 
 useGLTF.preload("/hatchet-logo.glb");
