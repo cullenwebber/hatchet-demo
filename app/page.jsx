@@ -1,8 +1,8 @@
 "use client";
-import { Canvas} from "@react-three/fiber";
+import { Canvas } from "@react-three/fiber";
 import { Model } from "../Components/Hatchet-logo";
 import { Environment, Float } from "@react-three/drei";
-import { KernelSize, Resolution } from 'postprocessing'
+import { KernelSize, Resolution } from "postprocessing";
 import {
 	Bloom,
 	EffectComposer,
@@ -25,7 +25,7 @@ export default function Home() {
 				<Environment preset="lobby" />
 				<EffectComposer>
 					<Bloom
-						intensity={7.0} // The bloom intensity.
+						intensity={4.0} // The bloom intensity.
 						kernelSize={KernelSize.LARGE} // blur kernel size
 						luminanceThreshold={0.1} // luminance threshold. Raise this value to mask out darker elements in the scene.
 						luminanceSmoothing={0.025} // smoothness of the luminance threshold. Range is [0, 1]
