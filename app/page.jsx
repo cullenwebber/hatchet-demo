@@ -2,7 +2,7 @@
 import { useRef, useState } from "react";
 import Image from "next/image";
 import { Canvas, useFrame } from "@react-three/fiber";
-import { Model } from "../Components/Model";
+import { Model } from "../Components/Hatchet-logo";
 import { OrbitControls, Environment, Float } from "@react-three/drei";
 import { BlendFunction } from "postprocessing";
 import { EffectComposer, Noise, Scanline } from "@react-three/postprocessing";
@@ -19,16 +19,6 @@ export default function Home() {
 				>
 					<Model />
 				</Float>
-				<Environment preset="lobby" />
-				<EffectComposer>
-					<Noise
-						premultiply // enables or disables noise premultiplication
-					/>
-					<Scanline
-						blendFunction={BlendFunction.OVERLAY} // blend mode
-						density={1.25} // scanline density
-					/>
-				</EffectComposer>
 			</Canvas>
 		</main>
 	);
