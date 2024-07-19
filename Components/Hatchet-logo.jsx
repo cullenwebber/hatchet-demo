@@ -1,12 +1,12 @@
-import React, { useMemo, useRef, useState } from "react";
+import React, { useMemo, useRef, useState, useEffect } from "react";
 import { useFrame } from "@react-three/fiber";
 import { useGLTF } from "@react-three/drei";
 import * as THREE from "three";
-import { useGSAP } from "@gsap/react";
 import gsap from "gsap";
 
 export function Model(props) {
-	const pointsRef = useRef();
+	const pointsRef1 = useRef();
+	const pointsRef2 = useRef();
 	const waveFactor = useRef(0);
 	const [isHovered, setIsHovered] = useState(false);
 	const hoverValue = useRef(0.05);
@@ -125,29 +125,25 @@ export function Model(props) {
 
 	const { nodes } = useGLTF("/hatchet-logo.glb");
 
-	useGSAP(
-		() => {
-			if (pointsRef.current) {
-				gsap.to(hoverValue, {
-					current: isHovered ? 0.4 : 0.05,
-					duration: 0.4,
-					ease: "power2",
-					onUpdate: () => {
-						if (pointsRef.current) {
-							pointsRef.current.material.uniforms.hover.value =
-								hoverValue.current;
-						}
-					},
-				});
-			}
-		},
-		{ dependencies: [isHovered] }
-	);
+	useEffect(() => {
+		const hoverTarget = { value: hoverValue.current };
+		gsap.to(hoverTarget, {
+			value: isHovered ? 0.4 : 0.05,
+			duration: 0.4,
+			ease: "power2",
+			onUpdate: () => {
+				hoverValue.current = hoverTarget.value;
+			},
+		});
+	}, [isHovered]);
 
 	useFrame((state, delta) => {
 		waveFactor.current += delta;
-		if (pointsRef.current) {
-			pointsRef.current.material.uniforms.time.value = waveFactor.current;
+		if (pointsRef1.current && pointsRef2.current) {
+			pointsRef1.current.material.uniforms.time.value = waveFactor.current;
+			pointsRef1.current.material.uniforms.hover.value = hoverValue.current;
+			pointsRef2.current.material.uniforms.time.value = waveFactor.current;
+			pointsRef2.current.material.uniforms.hover.value = hoverValue.current;
 		}
 	});
 
@@ -159,13 +155,13 @@ export function Model(props) {
 			onPointerOut={() => setIsHovered(false)}
 		>
 			<points
-				ref={pointsRef}
+				ref={pointsRef1}
 				geometry={nodes.Curve.geometry}
 				material={pointsMaterial}
 				scale={0.6}
 			/>
 			<points
-				ref={pointsRef}
+				ref={pointsRef2}
 				geometry={nodes.Curve001.geometry}
 				material={pointsMaterial}
 				scale={0.6}
