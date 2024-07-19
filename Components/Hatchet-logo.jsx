@@ -16,7 +16,7 @@ export function Model(props) {
 			new THREE.ShaderMaterial({
 				uniforms: {
 					color: { value: new THREE.Color("#cd001a") },
-					size: { value: 0.015 },
+					size: { value: 0.15 },
 					time: { value: 0 },
 					hover: { value: 0 },
 				},
@@ -110,7 +110,7 @@ export function Model(props) {
             float explosionFactor = hover;
             vec3 newPosition = position + normal * tan(position.y * 0.2 + adjustedTime * 0.9999) * noise * explosionFactor;
             gl_Position = projectionMatrix * modelViewMatrix * vec4(newPosition, 1.0);
-            gl_PointSize = 2.25;
+            gl_PointSize = 1.5;
           }
         `,
 				fragmentShader: `
