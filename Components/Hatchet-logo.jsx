@@ -10,8 +10,10 @@ export function Model(props) {
 	const pointsRef2 = useRef();
 	const waveFactor = useRef(0);
 	const [isHovered, setIsHovered] = useState(false);
+	const [isLoaded, setIsLoaded] = useState(false);
 	const hoverValue = useRef(0.05);
 
+  // Shader
 	const pointsMaterial = useMemo(
 		() =>
 			new THREE.ShaderMaterial({
@@ -20,7 +22,6 @@ export function Model(props) {
 					size: { value: 0.15 },
 					time: { value: 0 },
 					hover: { value: 0 },
-					hoverPosition: { value: new THREE.Vector3() },
 					emissive: { value: new THREE.Color("#cd001a") },
 				},
 				vertexShader: `
@@ -116,13 +117,10 @@ export function Model(props) {
                         float minTanValue = -1.0;  // minimum value limit
                         float maxTanValue = 10.0;   // maximum value limit
 
-                        float distanceToHover = distance(position, hoverPosition);
-                        float hoverEffect = smoothstep(0.1, 0.0, distanceToHover);
-
                         float tanValue = tan(position.y * 0.2 + adjustedTime * 1.9);
                         float clampedTanValue = clamp(tanValue, minTanValue, maxTanValue);
 
-                        vec3 newPosition = position + normal * clampedTanValue * noise * explosionFactor * (1.0 + hoverEffect * 2.0);
+                        vec3 newPosition = position + normal * clampedTanValue * noise * explosionFactor ;
                         gl_Position = projectionMatrix * modelViewMatrix * vec4(newPosition, 1.0);
                         gl_PointSize = 1.25;
                     }
@@ -141,54 +139,55 @@ export function Model(props) {
 
 	const { nodes } = useGLTF("/hatchet-logo.glb");
 
+	const hoverTarget = { value: hoverValue.current };
+
+	// Hover Animation
 	useGSAP(
 		() => {
-			const hoverTarget = { value: hoverValue.current };
-			gsap.to(hoverTarget, {
-				value: isHovered ? 0.15 : 0.05,
-				duration: 0.2,
-				ease: "linear",
+			if (isLoaded) {
+				gsap.to(hoverTarget, {
+					value: isHovered ? 0.15 : 0.05,
+					duration: 0.2,
+					ease: "linear",
+					onUpdate: () => {
+						hoverValue.current = hoverTarget.value;
+					},
+				});
+			}
+		},
+		{ dependencies: [isHovered] }
+	);
+
+	// Loaded in animation
+	useGSAP(
+		() => {
+			gsap.from(hoverTarget, {
+				value: 0.9,
+				duration: 2.2,
+				ease: "power2.inOut",
+				onComplete: () => {
+					setIsLoaded(true);
+				},
 				onUpdate: () => {
 					hoverValue.current = hoverTarget.value;
 				},
 			});
 		},
-		{ dependencies: [isHovered] }
+		{ dependencies: [] }
 	);
 
+	// Animate the material
 	useFrame((state, delta) => {
 		waveFactor.current += delta;
 
 		if (pointsRef1.current && pointsRef2.current) {
 			pointsRef1.current.material.uniforms.time.value = waveFactor.current;
 			pointsRef1.current.material.uniforms.hover.value = hoverValue.current;
-			pointsRef1.current.material.uniforms.hoverPosition.value.set(
-				state.pointer.x,
-				state.pointer.y,
-				0
-			);
 
 			pointsRef2.current.material.uniforms.time.value = waveFactor.current;
 			pointsRef2.current.material.uniforms.hover.value = hoverValue.current;
-			pointsRef2.current.material.uniforms.hoverPosition.value.set(
-				state.pointer.x,
-				state.pointer.y,
-				0
-			);
 		}
 	});
-
-	const handlePointerMove = (event) => {
-		const { offsetX, offsetY } = event;
-		const { width, height } = event.target;
-		const x = (offsetX / width) * 2 - 1;
-		const y = -(offsetY / height) * 2 + 1;
-
-		if (pointsRef1.current && pointsRef2.current) {
-			pointsRef1.current.material.uniforms.hoverPosition.value.set(x, y, 0);
-			pointsRef2.current.material.uniforms.hoverPosition.value.set(x, y, 0);
-		}
-	};
 
 	return (
 		<group
@@ -196,19 +195,19 @@ export function Model(props) {
 			dispose={null}
 			onPointerOver={() => setIsHovered(true)}
 			onPointerOut={() => setIsHovered(false)}
-			onPointerMove={handlePointerMove}
+      scale={0.8}
 		>
 			<points
 				ref={pointsRef1}
 				geometry={nodes.Curve.geometry}
 				material={pointsMaterial}
-				scale={0.6}
+				
 			/>
 			<points
 				ref={pointsRef2}
 				geometry={nodes.Curve001.geometry}
 				material={pointsMaterial}
-				scale={0.6}
+				
 			/>
 		</group>
 	);
