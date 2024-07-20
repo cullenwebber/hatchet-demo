@@ -1,4 +1,4 @@
-import React, { useMemo, useRef, useState, useEffect } from "react";
+import React, { useMemo, useRef, useState } from "react";
 import { useFrame } from "@react-three/fiber";
 import { useGLTF } from "@react-three/drei";
 import * as THREE from "three";
@@ -122,7 +122,7 @@ export function Model(props) {
 
                         vec3 newPosition = position + normal * clampedTanValue * noise * explosionFactor ;
                         gl_Position = projectionMatrix * modelViewMatrix * vec4(newPosition, 1.0);
-                        gl_PointSize = 1.25;
+                        gl_PointSize = 1.5;
                     }
                 `,
 				fragmentShader: `
