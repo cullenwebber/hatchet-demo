@@ -146,7 +146,7 @@ export function Model(props) {
 		() => {
 			if (isLoaded) {
 				gsap.to(hoverTarget, {
-					value: isHovered ? 0.15 : 0.05,
+					value: isHovered ? 0.175 : 0.05,
 					duration: 0.2,
 					ease: "linear",
 					onUpdate: () => {
